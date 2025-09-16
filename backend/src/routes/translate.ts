@@ -5,6 +5,49 @@ import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 
 const router = express.Router();
 
+// Helper function to merge existing translations with new ones
+function mergeTranslations(
+  existingTranslations: { key: string; value: string }[],
+  newTranslations: { key: string; originalValue: string; translatedValue: string; language: string }[]
+): { key: string; originalValue: string; translatedValue: string; language: string }[] {
+  // Create a map of existing translations for fast lookup
+  const existingMap = new Map<string, string>();
+  existingTranslations.forEach(translation => {
+    existingMap.set(translation.key, translation.value);
+  });
+
+  // Create a map of new translations
+  const newMap = new Map<string, string>();
+  newTranslations.forEach(translation => {
+    newMap.set(translation.key, translation.translatedValue);
+  });
+
+  // Combine all unique keys from both existing and new translations
+  const allKeys = new Set([...existingMap.keys(), ...newMap.keys()]);
+
+  // Create merged translations array
+  const mergedTranslations: { key: string; originalValue: string; translatedValue: string; language: string }[] = [];
+
+  allKeys.forEach(key => {
+    const existingValue = existingMap.get(key);
+    const newValue = newMap.get(key);
+
+    // Prefer existing translation if it exists, otherwise use new translation
+    const finalValue = existingValue || newValue || '';
+    const language = newTranslations[0]?.language || 'unknown';
+
+    mergedTranslations.push({
+      key,
+      originalValue: '', // We don't need this for final XML
+      translatedValue: finalValue,
+      language
+    });
+  });
+
+  // Sort by key for consistent output
+  return mergedTranslations.sort((a, b) => a.key.localeCompare(b.key));
+}
+
 // Helper function to generate XML content from translations
 function generateXMLContent(translations: { key: string; originalValue: string; translatedValue: string; language: string }[]): string {
   const xmlHeader = '<?xml version="1.0" encoding="utf-8"?>\n';
@@ -175,25 +218,28 @@ Return the result as a JSON object where each key maps to its translated value:
       }
 
       // Validate that we have translations for all requested strings
-      const translatedStrings = strings.map(s => ({
+      const newTranslations = strings.map(s => ({
         key: s.key,
         originalValue: s.value,
         translatedValue: translations[s.key] || s.value, // Fallback to original if missing
         language: targetLanguage
       }));
 
-      console.log(`✅ Translation batch completed: ${translatedStrings.length} strings translated`);
+      console.log(`✅ Translation batch completed: ${newTranslations.length} strings translated`);
 
+      // Note: We're returning only the new translations here
+      // The merging with existing translations will happen in the frontend
+      // when combining all batches for a language
       res.json({
         success: true,
         data: {
-          translations: translatedStrings,
+          translations: newTranslations,
           targetLanguage,
           sourceLanguage,
-          stringCount: translatedStrings.length,
+          stringCount: newTranslations.length,
           repository,
           branch,
-          xmlContent: generateXMLContent(translatedStrings)
+          xmlContent: generateXMLContent(newTranslations) // This will be re-generated with merged data
         }
       });
 
@@ -336,19 +382,79 @@ router.post('/create-pr', authenticateToken, async (req: AuthenticatedRequest, r
       'tr': 'Turkish', 'vi': 'Vietnamese'
     };
 
+    // Import scanner service to get existing translations
+    const { ScannerService } = require('../services/scannerService');
+    const scannerService = new ScannerService(req.user.user.githubToken);
+
     // Add translation files to the branch
     const filePromises = translationResults.map(async (result: any) => {
       const filePath = `androidApp/src/main/res/values-${result.language}/strings.xml`;
-      const commitMessage = `Add ${languageNames[result.language] || result.language} translations`;
+      const commitMessage = `Update ${languageNames[result.language] || result.language} translations`;
 
-      await githubService.createOrUpdateFile(
-        owner,
-        repo,
-        filePath,
-        result.xmlContent,
-        commitMessage,
-        newBranchName
-      );
+      try {
+        // Get existing translations for this language from the repository
+        const existingTranslations: { key: string; value: string }[] = [];
+
+        try {
+          // Try to get existing file content
+          const existingContent = await githubService.getFileContent(owner, repo, filePath, branch);
+
+          // Parse existing XML to extract translations
+          const xml2js = require('xml2js');
+          const parser = new xml2js.Parser({ explicitArray: false });
+          const parsedXml = await parser.parseStringPromise(existingContent);
+
+          if (parsedXml.resources && parsedXml.resources.string) {
+            const strings = Array.isArray(parsedXml.resources.string) ? parsedXml.resources.string : [parsedXml.resources.string];
+            strings.forEach((item: any) => {
+              if (typeof item === 'object' && item.$ && item.$.name) {
+                const key = String(item.$.name);
+                let value = '';
+                if (item._) {
+                  value = String(item._);
+                } else if (typeof item === 'string') {
+                  value = item;
+                } else {
+                  value = String(item).replace(/\[object Object\]/g, '');
+                }
+                if (key && value) {
+                  existingTranslations.push({ key, value });
+                }
+              }
+            });
+          }
+        } catch (error) {
+          console.log(`📝 No existing translations found for ${result.language}, creating new file`);
+        }
+
+        // Merge existing translations with new translations
+        const mergedTranslations = mergeTranslations(existingTranslations, result.translations || []);
+
+        // Generate XML content with merged translations
+        const mergedXmlContent = generateXMLContent(mergedTranslations);
+
+        await githubService.createOrUpdateFile(
+          owner,
+          repo,
+          filePath,
+          mergedXmlContent,
+          commitMessage,
+          newBranchName
+        );
+
+        console.log(`✅ Merged ${existingTranslations.length} existing + ${result.translations?.length || 0} new translations for ${result.language}`);
+      } catch (error) {
+        console.error(`❌ Error processing translations for ${result.language}:`, error);
+        // Fallback: use original XML content
+        await githubService.createOrUpdateFile(
+          owner,
+          repo,
+          filePath,
+          result.xmlContent,
+          commitMessage,
+          newBranchName
+        );
+      }
     });
 
     await Promise.all(filePromises);
