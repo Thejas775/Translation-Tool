@@ -10,10 +10,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: translation-tool-db
-          property: connectionString
       - key: GITHUB_CLIENT_ID
         sync: false
       - key: GITHUB_CLIENT_SECRET
@@ -28,9 +24,3 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         sync: false
-
-databases:
-  - name: translation-tool-db
-    databaseName: translation_tool
-    user: translation_user
-    plan: free
