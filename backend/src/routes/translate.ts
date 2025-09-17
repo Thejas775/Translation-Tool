@@ -128,7 +128,7 @@ router.post('/batch', authenticateToken, async (req: AuthenticatedRequest, res) 
 
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Language mapping for better context
     const languageNames: { [key: string]: string } = {
