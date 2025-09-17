@@ -211,7 +211,12 @@ const Dashboard: React.FC = () => {
   };
 
   const handleRepositoryClick = (repoId: string) => {
-    navigate(`/repository/${repoId}`);
+    // Find the repository to get owner/name for scanning
+    const repository = repositories.find(r => r.id === repoId);
+    if (repository) {
+      const [owner, name] = repository.fullName.split('/');
+      navigate(`/scan/${owner}/${name}`);
+    }
   };
 
   const handleAddRepository = () => {

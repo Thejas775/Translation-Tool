@@ -27,7 +27,7 @@ router.use(passport.session());
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID!,
   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-  callbackURL: process.env.GITHUB_CALLBACK_URL || 'http://localhost:5000/api/auth/github/callback',
+  callbackURL: process.env.GITHUB_CALLBACK_URL || 'http://localhost:3001/api/auth/github/callback',
 }, async (
   accessToken: string,
   refreshToken: string,
@@ -138,6 +138,70 @@ router.post('/logout', (req: Request, res: Response): void => {
     console.log('👋 User logged out');
     res.json({ message: 'Logged out successfully' });
   });
+});
+
+// Save GitHub token manually
+router.post('/github-token', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      res.status(401).json({ error: 'Access token required' });
+      return;
+    }
+
+    const { githubToken } = req.body;
+    if (!githubToken) {
+      res.status(400).json({ error: 'GitHub token is required' });
+      return;
+    }
+
+    // Verify the JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+    if (!decoded.user) {
+      res.status(401).json({ error: 'Invalid JWT token' });
+      return;
+    }
+
+    // Test the GitHub token
+    const testResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        'Authorization': `token ${githubToken}`,
+        'User-Agent': 'Translation-Tool',
+      },
+    });
+
+    if (!testResponse.ok) {
+      res.status(400).json({ error: 'Invalid GitHub token' });
+      return;
+    }
+
+    // Update user object with new GitHub token
+    const updatedUser = {
+      ...decoded.user,
+      githubToken: githubToken
+    };
+
+    // Create new JWT token with updated user data
+    const newJwtToken = jwt.sign(
+      { user: updatedUser },
+      process.env.JWT_SECRET || 'fallback-secret',
+      { expiresIn: '24h' }
+    );
+
+    console.log('✅ GitHub token updated for user:', updatedUser.username);
+
+    res.json({
+      success: true,
+      message: 'GitHub token saved successfully',
+      token: newJwtToken // Return new token with updated user data
+    });
+
+  } catch (error) {
+    console.error('❌ GitHub token save error:', error);
+    res.status(500).json({ error: 'Failed to save GitHub token' });
+  }
 });
 
 // Test endpoint to verify GitHub token works

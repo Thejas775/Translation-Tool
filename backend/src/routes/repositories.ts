@@ -224,7 +224,7 @@ router.post('/:id/scan', authenticateToken, async (req: AuthenticatedRequest, re
     // For now, simulate scanning
     setTimeout(() => {
       console.log(`✅ Scan completed for ${repository.fullName}`);
-    }, 5000);
+    }, 3001);
     
     res.json({ 
       message: 'Repository scan started',

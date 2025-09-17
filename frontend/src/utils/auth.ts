@@ -10,7 +10,7 @@ export interface User {
   
   export class AuthService {
     private static readonly TOKEN_KEY = 'mifos_auth_token';
-    private static readonly API_BASE = 'http://localhost:5000/api';
+    private static readonly API_BASE = 'http://localhost:3001/api';
   
     // Get stored token
     static getToken(): string | null {

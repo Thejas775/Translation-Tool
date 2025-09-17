@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -19,6 +19,9 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemSecondaryAction,
+  Button,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
 import {
   GitHub,
@@ -31,11 +34,16 @@ import {
   Check,
   Warning,
   Info,
+  Visibility,
+  VisibilityOff,
+  Save,
+  ArrowBack,
 } from '@mui/icons-material';
 
 // Components
 import Layout from '../components/layout/Layout';
 import GradientButton from '../components/ui/GradientButton';
+import { AuthService } from '../utils/auth';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -49,18 +57,85 @@ const Settings: React.FC = () => {
     scanFrequency: 'daily',
   });
 
-  // Mock user data
-  const user = {
+  // GitHub token state
+  const [githubToken, setGithubToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
+  const [tokenLoading, setTokenLoading] = useState(false);
+  const [tokenSuccess, setTokenSuccess] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+
+  // Get user data from auth
+  const user = AuthService.getUser() || {
     name: 'John Doe',
     avatar: 'https://github.com/johndoe.png',
     username: 'johndoe',
+    githubToken: undefined,
   };
+
+  useEffect(() => {
+    // Load existing token (show masked version for security)
+    if (user?.githubToken) {
+      setGithubToken('*'.repeat(40)); // Show masked token
+    }
+  }, [user]);
 
   const handleSettingChange = (setting: string, value: boolean | string | string[]) => {
     setSettings(prev => ({
       ...prev,
       [setting]: value,
     }));
+  };
+
+  const handleSaveGitHubToken = async () => {
+    if (!githubToken || githubToken.startsWith('*')) return;
+
+    setTokenLoading(true);
+    setTokenError(null);
+    setTokenSuccess(false);
+
+    try {
+      // Test the token first
+      const response = await fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': `token ${githubToken}`,
+          'User-Agent': 'Translation-Tool',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid GitHub token. Please check your token and try again.');
+      }
+
+      // Save token to backend
+      const saveResponse = await AuthService.apiRequest('/auth/github-token', {
+        method: 'POST',
+        body: JSON.stringify({ githubToken }),
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Failed to save GitHub token');
+      }
+
+      const result = await saveResponse.json();
+
+      // Update the stored JWT token with the new one that includes GitHub token
+      if (result.token) {
+        AuthService.setToken(result.token);
+      }
+
+      setTokenSuccess(true);
+      setGithubToken('*'.repeat(40)); // Mask the token
+
+      setTimeout(() => setTokenSuccess(false), 3000);
+    } catch (error) {
+      setTokenError(error instanceof Error ? error.message : 'Failed to save token');
+    } finally {
+      setTokenLoading(false);
+    }
+  };
+
+  const toggleTokenVisibility = () => {
+    setShowToken(!showToken);
   };
 
   const supportedLanguages = [
@@ -83,6 +158,15 @@ const Settings: React.FC = () => {
         <Box sx={{ py: 6 }}>
           {/* Header */}
           <Box sx={{ mb: 6 }}>
+            <GradientButton
+              variant="outline"
+              startIcon={<ArrowBack />}
+              onClick={() => navigate('/dashboard')}
+              sx={{ mb: 3 }}
+            >
+              Back to Dashboard
+            </GradientButton>
+
             <Typography
               variant="h3"
               component="h1"
@@ -119,34 +203,131 @@ const Settings: React.FC = () => {
                     </Typography>
                   </Box>
 
-                  <Alert severity="success" sx={{ mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Check sx={{ fontSize: 20 }} />
-                      Connected as @{user.username}
+                  {user?.githubToken ? (
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Check sx={{ fontSize: 20 }} />
+                        Connected as @{user.username}
+                      </Box>
+                    </Alert>
+                  ) : (
+                    <Alert severity="warning" sx={{ mb: 3 }}>
+                      <Typography variant="body2">
+                        GitHub token required to scan repositories
+                      </Typography>
+                    </Alert>
+                  )}
+
+                  {tokenError && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                      {tokenError}
+                    </Alert>
+                  )}
+
+                  {tokenSuccess && (
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Check sx={{ fontSize: 20 }} />
+                        GitHub token saved successfully!
+                      </Box>
+                    </Alert>
+                  )}
+
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle2" sx={{ color: 'white', mb: 2 }}>
+                      Personal Access Token
+                    </Typography>
+
+                    <TextField
+                      fullWidth
+                      label="GitHub Token"
+                      type={showToken ? 'text' : 'password'}
+                      value={githubToken}
+                      onChange={(e) => setGithubToken(e.target.value)}
+                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      sx={{
+                        mb: 2,
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255,255,255,0.05)',
+                          '& fieldset': {
+                            borderColor: 'rgba(255,255,255,0.2)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255,255,255,0.4)',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#6366f1',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'rgba(255,255,255,0.7)',
+                        },
+                        '& .MuiOutlinedInput-input': {
+                          color: 'white',
+                        },
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={toggleTokenVisibility}
+                              edge="end"
+                              sx={{ color: 'rgba(255,255,255,0.7)' }}
+                            >
+                              {showToken ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', mb: 2, display: 'block' }}>
+                      Required for scanning private repositories. Needs 'repo' scope.
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                      <GradientButton
+                        variant="primary"
+                        startIcon={<Save />}
+                        onClick={handleSaveGitHubToken}
+                        disabled={tokenLoading || !githubToken || githubToken.startsWith('*')}
+                      >
+                        {tokenLoading ? 'Saving...' : 'Save Token'}
+                      </GradientButton>
+
+                      <Button
+                        variant="outlined"
+                        onClick={() => window.open('https://github.com/settings/tokens/new?scopes=repo&description=Translation%20Tool', '_blank')}
+                        sx={{
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          color: 'rgba(255,255,255,0.7)',
+                          '&:hover': {
+                            borderColor: 'rgba(255,255,255,0.4)',
+                            backgroundColor: 'rgba(255,255,255,0.05)',
+                          },
+                        }}
+                      >
+                        Create Token
+                      </Button>
                     </Box>
-                  </Alert>
-
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle2" sx={{ color: 'white', mb: 1 }}>
-                      Connected Repositories
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                      3 repositories connected
-                    </Typography>
                   </Box>
 
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle2" sx={{ color: 'white', mb: 1 }}>
-                      API Rate Limit
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                      4,847 / 5,000 requests remaining this hour
-                    </Typography>
-                  </Box>
+                  {user?.githubToken && (
+                    <>
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="subtitle2" sx={{ color: 'white', mb: 1 }}>
+                          API Rate Limit
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                          Check GitHub API status
+                        </Typography>
+                      </Box>
 
-                  <GradientButton variant="outline" fullWidth>
-                    Refresh GitHub Connection
-                  </GradientButton>
+                      <GradientButton variant="outline" fullWidth>
+                        Test GitHub Connection
+                      </GradientButton>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </Grid>

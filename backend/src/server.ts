@@ -9,10 +9,12 @@ import cors from 'cors';
 import simpleRoutes from './routes/simple';
 import authRoutes from './routes/auth-safe';
 import githubAuthRoutes from './routes/github-auth';
-import repositoriesRoutes from './routes/repositories'; // ADD THIS LINE
+import repositoriesRoutes from './routes/repositories';
+import scanRoutes from './routes/scan';
+import translateRoutes from './routes/translate';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // CORS configuration
 app.use(cors({
@@ -51,7 +53,9 @@ console.log('🔄 Registering routes...');
 app.use('/api', simpleRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', githubAuthRoutes);
-app.use('/api/repositories', repositoriesRoutes); // ADD THIS LINE
+app.use('/api/repositories', repositoriesRoutes);
+app.use('/api/scan', scanRoutes);
+app.use('/api/translate', translateRoutes);
 
 console.log('✅ All routes registered successfully');
 
@@ -61,7 +65,8 @@ app.listen(PORT, () => {
   console.log(`💚 Health Check: http://localhost:${PORT}/health`);
   console.log(`🧪 Test API: http://localhost:${PORT}/api/test`);
   console.log(`📂 Repositories API: http://localhost:${PORT}/api/repositories`);
-  console.log(`🔍 Debug API: http://localhost:${PORT}/api/repositories/debug`);
+  console.log(`🔍 Scan API: http://localhost:${PORT}/api/scan`);
+  console.log(`🌐 Translate API: http://localhost:${PORT}/api/translate`);
   
   // Check environment variables
   const requiredEnvVars = ['GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'JWT_SECRET'];

@@ -6,6 +6,7 @@ import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Repository from './pages/Repository';
+import RepositoryScan from './pages/RepositoryScan';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 
@@ -69,6 +70,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/repository/:id" element={<Repository />} />
+          <Route path="/scan/:owner/:repo" element={<RepositoryScan />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Router>
