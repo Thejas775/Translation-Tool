@@ -33,7 +33,7 @@ router.get('/debug', authenticateToken, async (req: AuthenticatedRequest, res) =
       const response = await fetch('https://api.github.com/user', {
         headers: {
           'Authorization': `token ${githubToken}`,
-          'User-Agent': 'Mifos-Translation-System',
+          'User-Agent': 'MobileByteLabs-Translation-System',
         },
       });
   

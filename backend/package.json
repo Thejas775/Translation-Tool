@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "MobileByteLabs Translator - Backend API for intelligent translation services",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +11,7 @@
     "render-build": "npm install && npm run build"
   },
   "keywords": [],
-  "author": "",
+  "author": "MobileByteLabs",
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -14,14 +14,14 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
       {
         id: '1',
         key: 'welcome_message',
-        originalText: 'Welcome to Mifos Mobile Banking',
+        originalText: 'Welcome to MobileByteLabs Translator',
         filePath: 'app/src/main/res/values/strings.xml',
         lineNumber: 15,
         context: 'Main screen welcome text',
         status: 'approved',
         translations: {
-          Spanish: { text: 'Bienvenido a Mifos Mobile Banking', confidence: 95 },
-          French: { text: 'Bienvenue dans Mifos Mobile Banking', confidence: 92 },
+          Spanish: { text: 'Bienvenido a MobileByteLabs Translator', confidence: 95 },
+          French: { text: 'Bienvenue dans MobileByteLabs Translator', confidence: 92 },
         },
       },
     ];

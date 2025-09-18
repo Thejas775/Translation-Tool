@@ -4,7 +4,7 @@
 console.log('🔍 Testing authentication...');
 
 // Get token from localStorage
-const token = localStorage.getItem('mifos_auth_token');
+const token = localStorage.getItem('mobilebytes_auth_token');
 console.log('Token:', token ? token.substring(0, 50) + '...' : 'No token found');
 
 if (token) {

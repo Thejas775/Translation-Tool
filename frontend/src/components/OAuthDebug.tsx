@@ -8,7 +8,7 @@ const OAuthDebug: React.FC = () => {
     console.log('🔍 Current URL:', window.location.href);
     console.log('🔍 URL Search Params:', window.location.search);
     console.log('🔍 localStorage contents:', {
-      authToken: localStorage.getItem('mifos_auth_token'),
+      authToken: localStorage.getItem('mobilebytes_auth_token'),
       allKeys: Object.keys(localStorage),
     });
 
@@ -50,7 +50,7 @@ const OAuthDebug: React.FC = () => {
           </Typography>
           
           <Typography variant="body2" sx={{ color: 'white', mb: 1 }}>
-            <strong>localStorage Token:</strong> {localStorage.getItem('mifos_auth_token') ? 'EXISTS' : 'NONE'}
+            <strong>localStorage Token:</strong> {localStorage.getItem('mobilebytes_auth_token') ? 'EXISTS' : 'NONE'}
           </Typography>
         </CardContent>
       </Card>

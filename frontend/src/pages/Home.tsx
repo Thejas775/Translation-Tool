@@ -88,7 +88,7 @@ const Home: React.FC = () => {
           >
             Intelligent Translation
             <br />
-            for Financial Inclusion
+            for Global Communication
           </Typography>
           
           <Typography
@@ -101,7 +101,7 @@ const Home: React.FC = () => {
               lineHeight: 1.6,
             }}
           >
-            Automatically translate your Mifos applications with AI that understands
+            Automatically translate your applications with AI that understands
             context, maintains consistency, and integrates seamlessly with your workflow.
           </Typography>
 
@@ -138,7 +138,7 @@ const Home: React.FC = () => {
               fontWeight: 600,
             }}
           >
-            Why Choose Mifos Translator?
+            Why Choose MobileByteLabs Translator?
           </Typography>
 
           <Box

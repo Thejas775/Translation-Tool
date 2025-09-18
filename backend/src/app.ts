@@ -24,7 +24,7 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    message: '🚀 Mifos Translation API is running!',
+    message: '🚀 MobileByteLabs Translation API is running!',
   });
 });
 
