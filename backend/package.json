@@ -1,5 +1,5 @@
 {
-  "name": "mobilebytes-translator-backend",
+  "name": "backend",
   "version": "1.0.0",
   "description": "MobileByteLabs Translator - Backend API for intelligent translation services",
   "main": "index.js",
