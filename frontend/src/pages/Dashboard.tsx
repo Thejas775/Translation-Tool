@@ -72,7 +72,7 @@ const Dashboard: React.FC = () => {
     const initializeAuth = async () => {
       console.log('🔍 Dashboard initializeAuth starting...');
       console.log('🔍 Current URL:', window.location.href);
-      console.log('🔍 localStorage before callback:', localStorage.getItem('mifos_auth_token')?.substring(0, 20));
+      console.log('🔍 localStorage before callback:', localStorage.getItem('mobilebytes_auth_token')?.substring(0, 20));
       
       // Small delay to ensure localStorage is ready
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
       
       if (callbackUser) {
         console.log('✅ OAuth callback successful:', callbackUser);
-        console.log('🔍 localStorage after callback:', localStorage.getItem('mifos_auth_token')?.substring(0, 20));
+        console.log('🔍 localStorage after callback:', localStorage.getItem('mobilebytes_auth_token')?.substring(0, 20));
         setUser(callbackUser);
         setIsLoading(false);
         // Fetch repositories after successful authentication
@@ -118,7 +118,7 @@ const Dashboard: React.FC = () => {
       
       // Add a delay to see what's happening
       setTimeout(() => {
-        console.log('🔍 Final localStorage check before redirect:', localStorage.getItem('mifos_auth_token')?.substring(0, 20));
+        console.log('🔍 Final localStorage check before redirect:', localStorage.getItem('mobilebytes_auth_token')?.substring(0, 20));
         setIsLoading(false);
         navigate('/login');
       }, 2000);

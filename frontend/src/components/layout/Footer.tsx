@@ -69,7 +69,7 @@ const Footer: React.FC = () => {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Mifos Translator
+              MobileByteLabs Translator
             </Typography>
             <Typography
               variant="body2"
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
                 mb: 2,
               }}
             >
-              Empowering financial inclusion through intelligent, AI-powered translation 
+              Empowering global communication through intelligent, AI-powered translation
               that breaks down language barriers in applications.
             </Typography>
 

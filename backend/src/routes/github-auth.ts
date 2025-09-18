@@ -227,7 +227,7 @@ router.get('/test-github', async (req: Request, res: Response): Promise<void> =>
     const response = await fetch('https://api.github.com/user', {
       headers: {
         'Authorization': `token ${githubToken}`,
-        'User-Agent': 'Mifos-Translation-System',
+        'User-Agent': 'MobileByteLabs-Translation-System',
       },
     });
 

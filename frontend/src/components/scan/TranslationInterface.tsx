@@ -424,7 +424,7 @@ const TranslationInterface: React.FC<TranslationInterfaceProps> = ({
               label="Application Context"
               value={appContext}
               onChange={(e) => setAppContext(e.target.value)}
-              placeholder="Describe your application (e.g., 'This is a mobile banking app for financial services. Users can check account balances, transfer money, and pay bills.')"
+              placeholder="Describe your application (e.g., 'This is a productivity app for task management. Users can create tasks, set reminders, and organize projects.')"
               sx={{ mb: 3 }}
               helperText="Provide context about your app to help Gemini generate more accurate translations"
             />

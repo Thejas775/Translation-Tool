@@ -94,7 +94,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Mifos Translator
+              MobileByteLabs Translator
             </Typography>
           </Box>
 

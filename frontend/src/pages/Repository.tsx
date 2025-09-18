@@ -73,9 +73,9 @@ const Repository: React.FC = () => {
   // Mock repository data
   const repository = {
     id: id || '1',
-    name: 'mifos-mobile',
-    fullName: 'johndoe/mifos-mobile',
-    description: 'Mifos Android mobile application for financial services',
+    name: 'mobilebytes-translator',
+    fullName: 'johndoe/mobilebytes-translator',
+    description: 'MobileByteLabs translation application for global communication',
     language: 'Kotlin',
     stars: 145,
     lastScan: '2 hours ago',
@@ -94,15 +94,15 @@ const Repository: React.FC = () => {
     {
       id: '1',
       key: 'welcome_message',
-      originalText: 'Welcome to Mifos Mobile Banking',
+      originalText: 'Welcome to MobileByteLabs Translator',
       filePath: 'app/src/main/res/values/strings.xml',
       lineNumber: 15,
       context: 'Main screen welcome text',
       status: 'approved',
       translations: {
-        Spanish: { text: 'Bienvenido a Mifos Mobile Banking', confidence: 95, reviewer: 'maria.garcia', lastUpdated: '2 hours ago' },
-        French: { text: 'Bienvenue dans Mifos Mobile Banking', confidence: 92, reviewer: 'pierre.dubois', lastUpdated: '1 day ago' },
-        Portuguese: { text: 'Bem-vindo ao Mifos Mobile Banking', confidence: 94, lastUpdated: '3 hours ago' },
+        Spanish: { text: 'Bienvenido a MobileByteLabs Translator', confidence: 95, reviewer: 'maria.garcia', lastUpdated: '2 hours ago' },
+        French: { text: 'Bienvenue dans MobileByteLabs Translator', confidence: 92, reviewer: 'pierre.dubois', lastUpdated: '1 day ago' },
+        Portuguese: { text: 'Bem-vindo ao MobileByteLabs Translator', confidence: 94, lastUpdated: '3 hours ago' },
       },
     },
     {

@@ -43,7 +43,7 @@ export class GitHubService {
   constructor(githubToken: string) {
     this.octokit = new Octokit({
       auth: githubToken,
-      userAgent: 'Mifos-Translation-System/1.0',
+      userAgent: 'MobileByteLabs-Translation-System/1.0',
     });
   }
 

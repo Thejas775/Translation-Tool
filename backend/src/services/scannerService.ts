@@ -32,7 +32,7 @@ export class ScannerService {
 
   // Common patterns for finding string resources
   private readonly STRING_PATTERNS = [
-    // Mifos KMP specific patterns - prioritize these
+    // KMP specific patterns - prioritize these
     "feature/*/src/commonMain/composeResources/values/strings.xml",
     "feature/*/src/*/composeResources/values/strings.xml",
     "feature/*/src/*/resources/values/strings.xml",
